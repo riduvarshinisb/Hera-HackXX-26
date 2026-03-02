@@ -1,4 +1,4 @@
-import Cohere from "cohere-ai";
+import cohere from "cohere-ai";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,30 +11,22 @@ export default async function handler(req, res) {
     const { prompt } = req.body || {};
     if (!prompt) return res.status(400).json({ error: "prompt required" });
 
-    const key = process.env.COHERE_API_KEY;
-    if (!key) return res.status(500).json({ error: "Missing COHERE_API_KEY" });
+    if (!process.env.COHERE_API_KEY) {
+      return res.status(500).json({ error: "Missing COHERE_API_KEY" });
+    }
 
-    Cohere.init(key);
+    cohere.init(process.env.COHERE_API_KEY);
 
-    const system = `
-You are SHEild Legal Assistant.
-Guide women facing cyber harassment in India.
-Provide: (1) immediate safety steps, (2) evidence preservation steps, (3) relevant IPC/IT Act sections, (4) how to report (cybercrime.gov.in), (5) keep it concise.
-No guarantees. Safety-first.
-`;
+    const system = `You are SHEild Legal Assistant. Guide women facing cyber harassment in India. Give: safety steps, evidence preservation, relevant IPC/IT Act sections, and how to report. No guarantees. Be concise.`;
 
-    // Cohere Chat API
-    const resp = await Cohere.chat({
+    const resp = await cohere.chat({
       model: "command-r",
       message: prompt,
       preamble: system,
       temperature: 0.3
     });
 
-    return res.status(200).json({
-      ok: true,
-      reply: resp?.text || "No response."
-    });
+    return res.status(200).json({ ok: true, reply: resp?.text || "" });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: e.message || "Server error" });
