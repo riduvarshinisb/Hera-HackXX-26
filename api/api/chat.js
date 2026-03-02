@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     if (!apiKey) return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const system = `
 You are SHEild Legal Assistant.
