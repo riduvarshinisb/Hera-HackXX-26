@@ -28,6 +28,28 @@
 
       <p id="authStatus" class="status"></p>
     </section>
+    <section class="card" id="evidenceCard" style="display:none;">
+  <h2>Evidence Upload</h2>
+  <p class="muted">Upload evidence. SHEild will hash and log it automatically.</p>
+
+  <div class="grid" style="grid-template-columns: 1fr;">
+    <input id="evidenceTitle" type="text" placeholder="Evidence title (e.g., Instagram DM threat)" />
+    <select id="evidenceType">
+      <option value="screenshot">Screenshot</option>
+      <option value="video">Video</option>
+      <option value="chat">Chat Export</option>
+      <option value="pdf">PDF</option>
+      <option value="other">Other</option>
+    </select>
+    <input id="evidenceFile" type="file" />
+  </div>
+
+  <div class="actions">
+    <button id="uploadEvidenceBtn">Upload Evidence</button>
+  </div>
+
+  <p id="uploadStatus" class="status"></p>
+</section>
   </main>
 
   <script type="module" src="app.js"></script>
