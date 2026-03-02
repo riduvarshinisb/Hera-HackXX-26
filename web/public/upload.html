@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHEild - Upload Evidence</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>SHEild</h1>
+    <p class="muted">Evidence upload with intrinsic integrity verification.</p>
+
+    <section class="card">
+      <h2>Evidence Upload</h2>
+
+      <div class="grid" style="grid-template-columns: 1fr;">
+        <input id="evidenceTitle" type="text" placeholder="Evidence title (e.g., Instagram DM threat)" />
+        <select id="evidenceType">
+          <option value="screenshot">Screenshot</option>
+          <option value="video">Video</option>
+          <option value="chat">Chat Export</option>
+          <option value="pdf">PDF</option>
+          <option value="other">Other</option>
+        </select>
+        <input id="evidenceFile" type="file" />
+      </div>
+
+      <div class="actions">
+        <button id="uploadEvidenceBtn">Upload Evidence</button>
+        <button id="logoutBtn" class="secondary">Log out</button>
+      </div>
+
+      <p id="uploadStatus" class="status"></p>
+      <p id="whoami" class="muted"></p>
+    </section>
+  </main>
+
+  <script type="module" src="upload.js"></script>
+</body>
+</html>

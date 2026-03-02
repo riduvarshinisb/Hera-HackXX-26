@@ -1,7 +1,8 @@
+// SHEild/api/api/notarize.js
 const { ethers } = require("ethers");
 
 module.exports = async (req, res) => {
-  // CORS
+  // Basic CORS (hackathon-safe)
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -17,6 +18,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "sha256 and evidenceId are required" });
     }
 
+    // sha256 must be 64 hex chars (32 bytes)
     if (!/^[a-fA-F0-9]{64}$/.test(sha256)) {
       return res.status(400).json({ error: "Invalid sha256 format" });
     }
@@ -31,16 +33,17 @@ module.exports = async (req, res) => {
     const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
     const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-    // store sha256 (32 bytes) as tx data
+    // Notarize by writing the 32-byte SHA-256 into transaction data
     const data = "0x" + sha256;
 
+    // Send a 0-ETH tx to self with data (proof-of-existence timestamp on-chain)
     const tx = await wallet.sendTransaction({
       to: wallet.address,
       value: 0,
       data
     });
 
-    const receipt = await tx.wait(1);
+    const receipt = await tx.wait(1); // wait for 1 confirmation
 
     return res.status(200).json({
       ok: true,
