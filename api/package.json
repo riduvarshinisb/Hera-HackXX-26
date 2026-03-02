@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "cohere-ai": "^7.20.0",
+    "@google/generative-ai": "^0.24.1",
     "ethers": "^5.8.0"
   }
 }

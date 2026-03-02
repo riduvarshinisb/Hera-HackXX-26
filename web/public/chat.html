@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHEild Legal Assistant</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      padding: 40px 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .chat-container {
+      width: 700px;
+      background: #1e293b;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
+      position: relative;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .logout-btn {
+      background: #475569;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .logout-btn:hover { background: #64748b; }
+
+    h1 {
+      text-align: center;
+      color: #38bdf8;
+      margin: 10px 0 20px;
+    }
+
+    #chatBox {
+      height: 380px;
+      overflow-y: auto;
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      max-width: 85%;
+      white-space: pre-line;
+      line-height: 1.4;
+    }
+
+    .ai {
+      background: #334155;
+      align-self: flex-start;
+    }
+
+    .user {
+      background: #38bdf8;
+      color: black;
+      margin-left: auto;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .options button {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #334155;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s ease;
+      font-weight: 600;
+    }
+
+    .options button:hover { background: #475569; }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-row input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: #0b1220;
+      color: white;
+    }
+
+    .input-row button {
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: none;
+      background: #38bdf8;
+      cursor: pointer;
+      font-weight: 800;
+      transition: 0.2s ease;
+    }
+
+    .input-row button:hover { background: #0ea5e9; }
+
+    .hint {
+      color: #94a3b8;
+      font-size: 12px;
+      margin-top: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="chat-container">
+    <div class="top-row">
+      <div id="whoami" style="color:#94a3b8;font-size:12px;"></div>
+      <button class="logout-btn" onclick="logout()">Log Out</button>
+    </div>
+
+    <h1>SHEild Legal Assistant</h1>
+
+    <div id="chatBox"></div>
+
+    <div class="options">
+      <button onclick="selectOption('threat_messages')">Threat Messages</button>
+      <button onclick="selectOption('blackmail')">Blackmail / Extortion</button>
+      <button onclick="selectOption('impersonation')">Fake Account</button>
+      <button onclick="selectOption('image_misuse')">Image Misuse</button>
+      <button onclick="selectOption('doxxing')">Doxxing</button>
+      <button onclick="selectOption('other')">Other</button>
+    </div>
+
+    <div class="input-row">
+      <input type="text" id="userInput" placeholder="Describe your issue..." />
+      <button id="sendBtn">Send</button>
+    </div>
+
+    <div class="hint">Tip: Use buttons for quick legal templates, or type your case in your own words.</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // ✅ Your Firebase config (already correct)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKfkquw2rwnjJOD6Bm7K352ZYJT1bG0-Y",
+      authDomain: "herahack.firebaseapp.com",
+      projectId: "herahack",
+      storageBucket: "herahack.firebasestorage.app",
+      messagingSenderId: "107731899994",
+      appId: "1:107731899994:web:de2f0aaf1fcacc4cff2a63"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ✅ Your Vercel backend base
+    const VERCEL_API_BASE = "https://hera-hack-xx-26.vercel.app";
+
+    const chatBox = document.getElementById("chatBox");
+    const sendBtn = document.getElementById("sendBtn");
+    const userInput = document.getElementById("userInput");
+    const whoami = document.getElementById("whoami");
+
+    function addMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.classList.add("message");
+      msg.classList.add(sender === "AI" ? "ai" : "user");
+      msg.innerText = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    addMessage("AI", "Hi 👋 I am SHEild Legal Assistant. Choose a category below or describe your issue.");
+
+    // ✅ Route protection + display user
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "/index.html";
+        return;
+      }
+      whoami.textContent = `Logged in as: ${user.email || user.uid}`;
+    });
+
+    // ✅ Make these functions GLOBAL so onclick buttons work
+    window.logout = async function () {
+      await signOut(auth);
+      window.location.href = "/index.html";
+    };
+
+    // ✅ Predefined prompts (you can expand anytime)
+    const predefinedPrompts = {
+      threat_messages: "I am receiving threatening messages in DMs. What should I do legally and what evidence should I preserve?",
+      blackmail: "Someone is blackmailing/extorting me online. What actions should I take and which laws apply?",
+      impersonation: "A fake account has been created using my identity. What steps should I take and what legal provisions apply?",
+      image_misuse: "My photos/videos are being shared without my consent. What urgent steps and legal sections apply?",
+      doxxing: "My personal info has been posted online (doxxing). What should I do and which laws apply?",
+      other: "I am facing cyber harassment. Please guide me on next steps and applicable legal provisions in India."
+    };
+
+    window.selectOption = function (type) {
+      const text = predefinedPrompts[type] || predefinedPrompts.other;
+      addMessage("You", type.replaceAll("_", " "));
+      sendToAI(text);
+    };
+
+    // ✅ Send typed message
+    sendBtn.addEventListener("click", () => {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      addMessage("You", text);
+      userInput.value = "";
+      sendToAI(text);
+    });
+
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendBtn.click();
+    });
+
+    // ✅ The ONLY function that talks to backend
+    async function sendToAI(text) {
+      try {
+        const res = await fetch(`${VERCEL_API_BASE}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: text })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          // show real error message if backend returns one
+          addMessage("AI", data?.error || "Server error. Please try again.");
+          return;
+        }
+
+        addMessage("AI", data.reply || "Unable to process request.");
+      } catch (err) {
+        addMessage("AI", "Error connecting to legal advisory service.");
+      }
+    }
+  </script>
+</body>
+</html>

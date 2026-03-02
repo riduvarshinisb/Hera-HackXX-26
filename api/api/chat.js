@@ -1,4 +1,4 @@
-import cohere from "cohere-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,22 +11,31 @@ export default async function handler(req, res) {
     const { prompt } = req.body || {};
     if (!prompt) return res.status(400).json({ error: "prompt required" });
 
-    if (!process.env.COHERE_API_KEY) {
-      return res.status(500).json({ error: "Missing COHERE_API_KEY" });
-    }
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
 
-    cohere.init(process.env.COHERE_API_KEY);
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const system = `You are SHEild Legal Assistant. Guide women facing cyber harassment in India. Give: safety steps, evidence preservation, relevant IPC/IT Act sections, and how to report. No guarantees. Be concise.`;
+    const system = `
+You are SHEild Legal Assistant.
+Guide women facing cyber harassment in India.
+Provide:
+- Practical safety steps
+- Relevant IPC and IT Act sections
+- Clear structured answer
+- No guarantees of outcomes
+Keep responses concise and actionable.
+`;
 
-    const resp = await cohere.chat({
-      model: "command-r",
-      message: prompt,
-      preamble: system,
-      temperature: 0.3
-    });
+    const result = await model.generateContent([
+      system,
+      `User: ${prompt}`
+    ]);
 
-    return res.status(200).json({ ok: true, reply: resp?.text || "" });
+    const reply = result?.response?.text?.() || "";
+
+    return res.status(200).json({ ok: true, reply });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: e.message || "Server error" });
