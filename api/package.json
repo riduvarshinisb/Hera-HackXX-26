@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "ethers": "^5.8.0",
-    "openai": "^6.25.0"
+    "cohere-ai": "^7.20.0",
+    "ethers": "^5.8.0"
   }
 }
