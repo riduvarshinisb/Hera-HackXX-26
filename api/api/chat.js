@@ -1,18 +1,24 @@
-const OpenAI = require("openai");
+import OpenAI from "openai";
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
+
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST")
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
 
   try {
     const { prompt } = req.body || {};
-    if (!prompt)
+    if (!prompt) {
       return res.status(400).json({ error: "Prompt required" });
+    }
 
     const client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
@@ -28,12 +34,11 @@ You are SHEild Legal Assistant.
 
 You guide women facing cyber harassment in India.
 Provide:
-- Clear legal provisions (IPC, IT Act)
-- Practical steps
-- Safety-first guidance
-- No emotional exaggeration
-- No guarantees of legal outcomes
-Keep response structured and concise.
+- Relevant IPC and IT Act sections
+- Practical safety steps
+- Clear structured answers
+- No legal guarantees
+Keep responses concise and actionable.
 `
         },
         {
@@ -50,8 +55,9 @@ Keep response structured and concise.
     });
 
   } catch (err) {
+    console.error(err);
     return res.status(500).json({
       error: err.message || "OpenAI request failed"
     });
   }
-};
+}

@@ -32,7 +32,6 @@ function setStatus(msg, isError = false) {
   authStatus.style.color = isError ? "crimson" : "inherit";
 }
 
-<<<<<<< HEAD
 // ====== UI Elements (Evidence) ======
 const evidenceCard = document.getElementById("evidenceCard");
 const evidenceTitleEl = document.getElementById("evidenceTitle");
@@ -48,8 +47,6 @@ function setUploadStatus(msg, isError = false) {
 }
 
 // ====== Google Sign-In ======
-=======
->>>>>>> 893ae4f (chore(api): track api dependencies)
 googleBtn.addEventListener("click", async () => {
   try {
     const provider = new GoogleAuthProvider();
