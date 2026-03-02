@@ -55,6 +55,7 @@ const evidenceTypeEl = document.getElementById("evidenceType");
 const evidenceFileEl = document.getElementById("evidenceFile");
 const uploadEvidenceBtn = document.getElementById("uploadEvidenceBtn");
 const uploadStatusEl = document.getElementById("uploadStatus");
+const escalateBtn = document.getElementById("escalateBtn");
 
 function setUploadStatus(msg, isError = false) {
   uploadStatusEl.textContent = msg;
