@@ -209,3 +209,9 @@ onAuthStateChanged(auth, (user) => {
     setUploadStatus("");
   }
 });
+// ====== Escalation Routing ======
+if (escalateBtn) {
+  escalateBtn.addEventListener("click", () => {
+    window.location.href = "escalate.html";
+  });
+}
