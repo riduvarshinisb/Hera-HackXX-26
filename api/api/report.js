@@ -26,7 +26,7 @@ Return in plain text with headings:
 2. Incident Summary
 3. Timeline (if dates provided)
 4. Suspect/Offender Details (if any)
-5. Evidence List (with hashes + links + blockchain tx if present)
+5. Evidence List (with links + blockchain proof if present)
 6. Applicable Legal Provisions (IPC/IT Act - best fit)
 7. Requested Action
 8. Declaration

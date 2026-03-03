@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHEild - Legal Report</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .row input, .row select, .row textarea { width: 100%; }
+    textarea {
+      min-height: 120px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.25);
+      color:#fff;
+      outline: none;
+    }
+    .two { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .mutedSmall { color:#94a3b8; font-size: 12px; }
+    .list { margin-top:10px; }
+    .item {
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      margin-bottom:10px;
+    }
+    .item a { color:#38bdf8; }
+    .chip {
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.12);
+      font-size: 12px;
+      margin-left: 6px;
+    }
+    pre {
+      white-space: pre-wrap;
+      background: rgba(0,0,0,0.25);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>SHEild</h1>
+    <p class="muted">Legal Complaint Draft → PDF → Redirect to National Cybercrime Portal</p>
+
+    <section class="card">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">Generate Legal Report</h2>
+        <button id="logoutBtn" class="secondary">Log out</button>
+      </div>
+      <p id="whoami" class="mutedSmall"></p>
+
+      <div class="two" style="margin-top:10px;">
+        <input id="victimName" type="text" placeholder="Your Name (optional)" />
+        <input id="victimPhone" type="text" placeholder="Phone (optional)" />
+      </div>
+
+      <div class="two" style="margin-top:10px;">
+        <input id="victimEmail" type="email" placeholder="Email (optional)" />
+        <input id="platform" type="text" placeholder="Platform/App (Instagram, WhatsApp, etc.)" />
+      </div>
+
+      <div class="two" style="margin-top:10px;">
+        <select id="category">
+          <option value="threat_messages">Threat Messages</option>
+          <option value="blackmail">Blackmail / Extortion</option>
+          <option value="impersonation">Fake Account</option>
+          <option value="image_misuse">Image Misuse</option>
+          <option value="doxxing">Doxxing</option>
+          <option value="other">Other</option>
+        </select>
+        <input id="startDate" type="date" />
+      </div>
+
+      <div class="two" style="margin-top:10px;">
+        <input id="endDate" type="date" />
+        <input id="suspect" type="text" placeholder="Suspect profile/link (optional)" />
+      </div>
+
+      <textarea id="summary" placeholder="Describe what happened (facts only). Include usernames/URLs/timestamps if you know them."></textarea>
+      <textarea id="notes" placeholder="Any extra notes (optional)"></textarea>
+
+      <div class="actions">
+        <button id="loadEvidenceBtn" class="secondary">Load My Evidence</button>
+        <button id="generateBtn">Generate Draft</button>
+        <button id="downloadBtn" class="secondary" disabled>Download PDF</button>
+        <button id="portalBtn" class="secondary" disabled>Go to cybercrime.gov.in</button>
+      </div>
+
+      <p id="status" class="status"></p>
+
+      <div class="list">
+        <h3>Selected Evidence</h3>
+        <div id="evidenceList" class="mutedSmall">Not loaded yet.</div>
+      </div>
+
+      <div class="list">
+        <h3>Draft Preview</h3>
+        <pre id="draftPreview"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="report.js"></script>
+</body>
+</html>
