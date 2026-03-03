@@ -26,7 +26,7 @@ Return in plain text with headings:
 2. Incident Summary
 3. Timeline (if dates provided)
 4. Suspect/Offender Details (if any)
-5. Evidence List (with links + blockchain proof if present)
+5. Evidence List (with cloud link)
 6. Applicable Legal Provisions (IPC/IT Act - best fit)
 7. Requested Action
 8. Declaration
@@ -49,10 +49,7 @@ Evidence (each item):
 ${(evidenceList || []).map((e, i) => `
 ${i + 1}) Title: ${e.title || "N/A"}
    Type: ${e.type || "N/A"}
-   SHA-256: ${e.sha256 || "N/A"}
    Cloud URL: ${e.url || "N/A"}
-   Blockchain Tx: ${e.txHash || "N/A"}
-   Block: ${e.blockNumber || "N/A"}
 `).join("\n")}
 `;
 

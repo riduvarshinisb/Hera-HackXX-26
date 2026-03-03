@@ -51,7 +51,7 @@ googleBtn.addEventListener("click", async () => {
   try {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
-    setStatus("Google login successful ✅");
+    setStatus("Google login successful ");
     window.location.href = "/upload.html";
   } catch (e) {
     setStatus(e.message, true);
@@ -65,7 +65,7 @@ signupBtn.addEventListener("click", async () => {
     if (!email || !password) return setStatus("Enter email and password.", true);
 
     await createUserWithEmailAndPassword(auth, email, password);
-    setStatus("Signup successful ✅");
+    setStatus("Signup successful ");
     window.location.href = "/upload.html";
   } catch (e) {
     setStatus(e.message, true);
@@ -79,7 +79,7 @@ loginBtn.addEventListener("click", async () => {
     if (!email || !password) return setStatus("Enter email and password.", true);
 
     await signInWithEmailAndPassword(auth, email, password);
-    setStatus("Login successful ✅");
+    setStatus("Login successful.");
     window.location.href = "/upload.html";
   } catch (e) {
     setStatus(e.message, true);
@@ -92,9 +92,4 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "/upload.html";
   }
 });
-// ====== Escalation Routing ======
-if (escalateBtn) {
-  escalateBtn.addEventListener("click", () => {
-    window.location.href = "escalate.html";
-  });
-}
+
