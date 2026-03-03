@@ -11,7 +11,6 @@ import {
 
 import { PDFDocument, StandardFonts } from "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/+esm";
 
-// ===== Firebase config (same as your other pages) =====
 const firebaseConfig = {
   apiKey: "AIzaSyBKfkquw2rwnjJOD6Bm7K352ZYJT1bG0-Y",
   authDomain: "herahack.firebaseapp.com",
@@ -94,16 +93,15 @@ async function loadMyEvidence() {
     return;
   }
 
-  // Auto-select latest up to 5 items
   const docs = [];
   snap.forEach((d) => docs.push({ id: d.id, ...d.data() }));
 
+  // Auto-select latest up to 5
   selectedEvidence = docs.slice(0, 5).map((e) => ({
     id: e.id,
     title: e.title || "Untitled",
     type: e.type || "unknown",
     url: e.cloudinary?.secure_url || "",
-    // Do not show hash in UI; keep txHash optionally for report proof
     txHash: e.blockchain?.txHash || "",
     blockNumber: e.blockchain?.blockNumber || ""
   }));
@@ -111,10 +109,7 @@ async function loadMyEvidence() {
   evidenceListEl.innerHTML = selectedEvidence
     .map((e) => `
       <div class="item">
-        <div>
-          <b>${escapeHtml(e.title)}</b>
-          <span class="chip">${escapeHtml(e.type)}</span>
-        </div>
+        <div><b>${escapeHtml(e.title)}</b> <span class="chip">${escapeHtml(e.type)}</span></div>
         <div>Cloud: <a href="${e.url}" target="_blank">Open Evidence</a></div>
         <div>Blockchain Proof: <code>${escapeHtml(e.txHash || "Pending/Not available")}</code></div>
       </div>
@@ -161,7 +156,7 @@ generateBtn.addEventListener("click", async () => {
         notes: notes.value.trim(),
         suspect: suspect.value.trim()
       },
-      // Send only non-sensitive evidence fields; hash stays backend-only
+      // Hash stays backend-only: we do NOT send it
       evidenceList: selectedEvidence.map((e) => ({
         title: e.title,
         type: e.type,
@@ -183,7 +178,8 @@ generateBtn.addEventListener("click", async () => {
     latestDraft = data.draft || "";
     draftPreview.textContent = latestDraft;
 
-    setStatus("Draft generated ✅ You can download PDF now.");
+    // ✅ Enable both PDF + Portal buttons AFTER draft success
+    setStatus("Draft generated ✅ Download PDF or proceed to the portal.");
     downloadBtn.disabled = false;
     portalBtn.disabled = false;
   } catch (e) {
@@ -231,13 +227,15 @@ downloadBtn.addEventListener("click", async () => {
     a.click();
     a.remove();
 
-    setStatus("PDF downloaded ✅");
+    setStatus("PDF downloaded ✅ You can now proceed to the portal.");
+    // portal stays enabled
   } catch (e) {
     setStatus(e.message, true);
   }
 });
 
 portalBtn.addEventListener("click", () => {
+  // ✅ Redirect/forward to national portal
   window.open("https://cybercrime.gov.in/", "_blank");
 });
 
