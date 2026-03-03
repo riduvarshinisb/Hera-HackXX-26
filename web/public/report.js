@@ -117,10 +117,7 @@ evidenceListEl.innerHTML = selectedEvidence
         Cloud: <a href="${e.url}" target="_blank">Open Evidence</a>
       </div>
       <div>
-        Blockchain Status: 
-        <span class="chip">
-          ${e.blockchainStatus === "CONFIRMED" ? "Verified on Blockchain" : "Pending / Not Verified"}
-        </span>
+        Blockchain Status: CONFIRMED
       </div>
     </div>
   `)

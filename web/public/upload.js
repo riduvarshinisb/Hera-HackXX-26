@@ -100,7 +100,7 @@ uploadEvidenceBtn.addEventListener("click", async () => {
     setUploadStatus("Checking if evidence already exists...");
     const exists = await evidenceAlreadyExists(user.uid, hash);
     if (exists) {
-      setUploadStatus("This evidence has already been securely stored ✅");
+      setUploadStatus("This evidence has already been securely stored ");
       return;
     }
 
@@ -176,7 +176,7 @@ uploadEvidenceBtn.addEventListener("click", async () => {
       }
     });
 
-    setUploadStatus("Evidence uploaded and notarized ✅");
+    setUploadStatus("Evidence uploaded and notarized ");
 
     evidenceTitleEl.value = "";
     evidenceFileEl.value = "";
