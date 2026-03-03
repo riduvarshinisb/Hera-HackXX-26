@@ -1,9 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
@@ -11,30 +10,43 @@ export default async function handler(req, res) {
     const { prompt } = req.body || {};
     if (!prompt) return res.status(400).json({ error: "prompt required" });
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
+    const key = process.env.OPENROUTER_API_KEY;
+    if (!key) return res.status(500).json({ error: "Missing OPENROUTER_API_KEY" });
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+    const model = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
 
-    const system = `
-You are SHEild Legal Assistant.
-Guide women facing cyber harassment in India.
-Provide:
-- Practical safety steps
-- Relevant IPC and IT Act sections
-- Clear structured answer
-- No guarantees of outcomes
-Keep responses concise and actionable.
-`;
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${key}`,
+        // Recommended by OpenRouter for analytics/rate-limits:
+        "HTTP-Referer": process.env.SITE_URL || "http://localhost",
+        "X-Title": process.env.SITE_NAME || "SHEild"
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.3,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are SHEild Legal Assistant. Provide India cyber harassment guidance: practical steps + relevant IPC/IT Act sections. Safety-first. No guarantees. Keep concise."
+          },
+          { role: "user", content: prompt }
+        ]
+      })
+    });
 
-    const result = await model.generateContent([
-      system,
-      `User: ${prompt}`
-    ]);
+    const data = await r.json();
 
-    const reply = result?.response?.text?.() || "";
+    if (!r.ok) {
+      return res.status(500).json({
+        error: data?.error?.message || data?.error || "OpenRouter request failed"
+      });
+    }
 
+    const reply = data?.choices?.[0]?.message?.content || "";
     return res.status(200).json({ ok: true, reply });
   } catch (e) {
     console.error(e);
