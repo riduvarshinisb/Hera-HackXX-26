@@ -106,15 +106,25 @@ async function loadMyEvidence() {
     blockNumber: e.blockchain?.blockNumber || ""
   }));
 
-  evidenceListEl.innerHTML = selectedEvidence
-    .map((e) => `
-      <div class="item">
-        <div><b>${escapeHtml(e.title)}</b> <span class="chip">${escapeHtml(e.type)}</span></div>
-        <div>Cloud: <a href="${e.url}" target="_blank">Open Evidence</a></div>
-        <div>Blockchain Proof: <code>${escapeHtml(e.txHash || "Pending/Not available")}</code></div>
+evidenceListEl.innerHTML = selectedEvidence
+  .map((e) => `
+    <div class="item">
+      <div>
+        <b>${escapeHtml(e.title)}</b> 
+        <span class="chip">${escapeHtml(e.type)}</span>
       </div>
-    `)
-    .join("");
+      <div>
+        Cloud: <a href="${e.url}" target="_blank">Open Evidence</a>
+      </div>
+      <div>
+        Blockchain Status: 
+        <span class="chip">
+          ${e.blockchainStatus === "CONFIRMED" ? "Verified on Blockchain" : "Pending / Not Verified"}
+        </span>
+      </div>
+    </div>
+  `)
+  .join("");
 
   setStatus(`Loaded ${selectedEvidence.length} evidence item(s) `);
 }
