@@ -3,33 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SHEild - Legal Report</title>
+  <title>SHEild - Legal Report Generation</title>
   <link rel="stylesheet" href="style.css" />
 
   <style>
-    .row { display:flex; gap:10px; flex-wrap:wrap; }
-    .row input, .row select, .row textarea { width: 100%; }
-    textarea {
-      min-height: 120px;
+    /* Layout */
+    .header-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 6px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top: 12px;
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:12px;
+      margin-top: 12px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 0;
+    }
+
+    .label{
+      font-size:12px;
+      color:#94a3b8;
+    }
+
+    input, select{
+      width:100%;
       padding: 12px;
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.18);
       background: rgba(0,0,0,0.25);
       color:#fff;
-      outline: none;
+      outline:none;
     }
-    .two { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+
+    textarea{
+      width:100%;
+      min-height: 130px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.25);
+      color:#fff;
+      outline:none;
+      resize: vertical;
+    }
+
     .mutedSmall { color:#94a3b8; font-size: 12px; }
-    .list { margin-top:10px; }
-    .item {
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 14px;
+    }
+
+    .list { margin-top:16px; }
+
+    .item{
       padding:10px;
       border-radius:12px;
       border:1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.05);
       margin-bottom:10px;
     }
-    .item a { color:#38bdf8; }
-    .chip {
+
+    .item a{ color:#38bdf8; }
+
+    .chip{
       display:inline-block;
       padding:4px 8px;
       border-radius:999px;
@@ -37,7 +93,8 @@
       font-size: 12px;
       margin-left: 6px;
     }
-    pre {
+
+    pre{
       white-space: pre-wrap;
       background: rgba(0,0,0,0.25);
       padding: 12px;
@@ -45,50 +102,106 @@
       border: 1px solid rgba(255,255,255,0.12);
       margin: 0;
     }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .grid-3{ grid-template-columns: 1fr; }
+      .grid-2{ grid-template-columns: 1fr; }
+    }
   </style>
 </head>
+
 <body>
   <main class="container">
     <h1>SHEild</h1>
-    <p class="muted">Legal Complaint Draft → PDF → Redirect to National Cybercrime Portal</p>
 
     <section class="card">
-      <div class="row" style="justify-content:space-between; align-items:center;">
-        <h2 style="margin:0;">Generate Legal Report</h2>
+      <div class="header-row">
+        <div>
+          <h2 style="margin:0;">Generate Legal Report</h2>
+          <p id="whoami" class="mutedSmall" style="margin:6px 0 0;"></p>
+        </div>
         <button id="logoutBtn" class="secondary">Log out</button>
       </div>
-      <p id="whoami" class="mutedSmall"></p>
 
-      <div class="two" style="margin-top:10px;">
-        <input id="victimName" type="text" placeholder="Your Name (optional)" />
-        <input id="victimPhone" type="text" placeholder="Phone (optional)" />
+      <!-- Basic details -->
+      <div class="grid-2">
+        <div class="field">
+          <div class="label">Your Name (optional)</div>
+          <input id="victimName" type="text" placeholder="Eg: Ridu Varshini" />
+        </div>
+
+        <div class="field">
+          <div class="label">Phone (optional)</div>
+          <input id="victimPhone" type="text" placeholder="Eg: +91 XXXXX XXXXX" />
+        </div>
       </div>
 
-      <div class="two" style="margin-top:10px;">
-        <input id="victimEmail" type="email" placeholder="Email (optional)" />
-        <input id="platform" type="text" placeholder="Platform/App (Instagram, WhatsApp, etc.)" />
+      <div class="grid-2">
+        <div class="field">
+          <div class="label">Email (optional)</div>
+          <input id="victimEmail" type="email" placeholder="Eg: you@email.com" />
+        </div>
+
+        <div class="field">
+          <div class="label">Platform/App</div>
+          <input id="platform" type="text" placeholder="Instagram / WhatsApp / Telegram / etc." />
+        </div>
       </div>
 
-      <div class="two" style="margin-top:10px;">
-        <select id="category">
-          <option value="threat_messages">Threat Messages</option>
-          <option value="blackmail">Blackmail / Extortion</option>
-          <option value="impersonation">Fake Account</option>
-          <option value="image_misuse">Image Misuse</option>
-          <option value="doxxing">Doxxing</option>
-          <option value="other">Other</option>
-        </select>
-        <input id="startDate" type="date" />
+      <!-- Incident details -->
+      <div class="grid-3">
+        <div class="field">
+          <div class="label">Category</div>
+          <select id="category">
+            <option value="threat_messages">Threat Messages</option>
+            <option value="blackmail">Blackmail / Extortion</option>
+            <option value="impersonation">Fake Account</option>
+            <option value="image_misuse">Image Misuse</option>
+            <option value="doxxing">Doxxing</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <div class="label">Start Date</div>
+          <!-- IMPORTANT: keep id="startDate" because report.js uses it -->
+          <input type="date" id="startDate" />
+        </div>
+
+        <div class="field">
+          <div class="label">End Date</div>
+          <!-- IMPORTANT: keep id="endDate" because report.js uses it -->
+          <input type="date" id="endDate" />
+        </div>
       </div>
 
-      <div class="two" style="margin-top:10px;">
-        <input id="endDate" type="date" />
-        <input id="suspect" type="text" placeholder="Suspect profile/link (optional)" />
+      <div class="grid-2">
+        <div class="field">
+          <div class="label">Suspect profile/link (optional)</div>
+          <input id="suspect" type="text" placeholder="Profile URL / username / phone number" />
+        </div>
+
+        <div class="field">
+          <div class="label">Extra notes (optional)</div>
+          <input id="notesInline" type="text" placeholder="Eg: contact details, witnesses, any urgent risk" />
+        </div>
       </div>
 
-      <textarea id="summary" placeholder="Describe what happened (facts only). Include usernames/URLs/timestamps if you know them."></textarea>
-      <textarea id="notes" placeholder="Any extra notes (optional)"></textarea>
+      <div class="grid-2">
+        <div class="field">
+          <div class="label">Incident Summary</div>
+          <textarea id="summary" placeholder="Facts only. Include usernames/URLs/timestamps if known."></textarea>
+        </div>
 
+        <div class="field">
+          <div class="label">Additional Notes (optional)</div>
+          <!-- report.js expects textarea#notes, so we mirror notesInline into this -->
+          <textarea id="notes" placeholder="Anything else you want included in the complaint."></textarea>
+        </div>
+      </div>
+
+      <!-- Actions -->
       <div class="actions">
         <button id="loadEvidenceBtn" class="secondary">Load My Evidence</button>
         <button id="generateBtn">Generate Draft</button>
@@ -109,6 +222,15 @@
       </div>
     </section>
   </main>
+
+  <script type="module">
+    // keep your existing report.js logic, but we sync notesInline -> notes for convenience
+    const inline = document.getElementById("notesInline");
+    const notes = document.getElementById("notes");
+    if (inline && notes) {
+      inline.addEventListener("input", () => (notes.value = inline.value));
+    }
+  </script>
 
   <script type="module" src="report.js"></script>
 </body>

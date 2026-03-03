@@ -116,7 +116,7 @@ async function loadMyEvidence() {
     `)
     .join("");
 
-  setStatus(`Loaded ${selectedEvidence.length} evidence item(s) ✅`);
+  setStatus(`Loaded ${selectedEvidence.length} evidence item(s) `);
 }
 
 loadEvidenceBtn.addEventListener("click", () => {
@@ -178,8 +178,8 @@ generateBtn.addEventListener("click", async () => {
     latestDraft = data.draft || "";
     draftPreview.textContent = latestDraft;
 
-    // ✅ Enable both PDF + Portal buttons AFTER draft success
-    setStatus("Draft generated ✅ Download PDF or proceed to the portal.");
+    //Enable both PDF + Portal buttons AFTER draft success
+    setStatus("Draft generated. Download PDF or proceed to the portal.");
     downloadBtn.disabled = false;
     portalBtn.disabled = false;
   } catch (e) {

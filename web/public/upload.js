@@ -99,7 +99,7 @@ setUploadStatus("Checking if evidence already exists...");
 
 const exists = await evidenceAlreadyExists(user.uid, hash);
 if (exists) {
-  setUploadStatus("This evidence has already been securely stored ✅");
+  setUploadStatus("This evidence has already been securely stored");
   return;
 }
 
