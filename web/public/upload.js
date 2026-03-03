@@ -1,9 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
   getFirestore,
   collection,
@@ -17,26 +13,28 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// ====== YOUR FIREBASE CONFIG (same as app.js) ======
+// ===== Firebase =====
 const firebaseConfig = {
-    apiKey: "AIzaSyBKfkquw2rwnjJOD6Bm7K352ZYJT1bG0-Y",
-    authDomain: "herahack.firebaseapp.com",
-    projectId: "herahack",
-    storageBucket: "herahack.firebasestorage.app",
-    messagingSenderId: "107731899994",
-    appId: "1:107731899994:web:de2f0aaf1fcacc4cff2a63"
-  };
+  apiKey: "AIzaSyBKfkquw2rwnjJOD6Bm7K352ZYJT1bG0-Y",
+  authDomain: "herahack.firebaseapp.com",
+  projectId: "herahack",
+  storageBucket: "herahack.firebasestorage.app",
+  messagingSenderId: "107731899994",
+  appId: "1:107731899994:web:de2f0aaf1fcacc4cff2a63"
+};
 
-// ====== CLOUDINARY CONFIG ======
+// ===== Cloudinary =====
 const CLOUDINARY_CLOUD_NAME = "dacassfrk";
 const CLOUDINARY_UPLOAD_PRESET = "sheild_unsigned";
 
+// ✅ Vercel backend
 const VERCEL_API_BASE = "https://hera-hack-xx-26.vercel.app";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// UI
 const evidenceTitleEl = document.getElementById("evidenceTitle");
 const evidenceTypeEl = document.getElementById("evidenceType");
 const evidenceFileEl = document.getElementById("evidenceFile");
@@ -68,6 +66,7 @@ async function uploadToCloudinary(file) {
   if (!res.ok) throw new Error(data?.error?.message || "Cloudinary upload failed");
   return data;
 }
+
 async function evidenceAlreadyExists(uid, sha256) {
   const q = query(
     collection(db, "evidence"),
@@ -80,6 +79,8 @@ async function evidenceAlreadyExists(uid, sha256) {
 }
 
 uploadEvidenceBtn.addEventListener("click", async () => {
+  let docRef = null;
+
   try {
     const user = auth.currentUser;
     if (!user) return setUploadStatus("Not logged in. Redirecting...", true);
@@ -92,16 +93,16 @@ uploadEvidenceBtn.addEventListener("click", async () => {
     if (!file) return setUploadStatus("Please choose a file.", true);
 
     uploadEvidenceBtn.disabled = true;
+
     setUploadStatus("Generating SHA-256 hash...");
-
     const hash = await sha256Hex(file);
-setUploadStatus("Checking if evidence already exists...");
 
-const exists = await evidenceAlreadyExists(user.uid, hash);
-if (exists) {
-  setUploadStatus("This evidence has already been securely stored");
-  return;
-}
+    setUploadStatus("Checking if evidence already exists...");
+    const exists = await evidenceAlreadyExists(user.uid, hash);
+    if (exists) {
+      setUploadStatus("This evidence has already been securely stored ✅");
+      return;
+    }
 
     const metadata = {
       fileName: file.name,
@@ -115,50 +116,68 @@ if (exists) {
     const cloud = await uploadToCloudinary(file);
 
     setUploadStatus("Saving record to Firestore...");
-const ref = await addDoc(collection(db, "evidence"), {
-  uid: user.uid,
-  userEmail: user.email || null,
-  title,
-  type,
-  sha256: hash,
-  metadata,
-  cloudinary: {
-    secure_url: cloud.secure_url,
-    public_id: cloud.public_id,
-    resource_type: cloud.resource_type,
-    format: cloud.format,
-    bytes: cloud.bytes
-  },
-  createdAt: serverTimestamp(),
-  blockchain: { status: "PENDING" }
-});
+    docRef = await addDoc(collection(db, "evidence"), {
+      uid: user.uid,
+      userEmail: user.email || null,
+      title,
+      type,
+      sha256: hash,
+      metadata,
+      cloudinary: {
+        secure_url: cloud.secure_url,
+        public_id: cloud.public_id,
+        resource_type: cloud.resource_type,
+        format: cloud.format,
+        bytes: cloud.bytes
+      },
+      createdAt: serverTimestamp(),
+      blockchain: { status: "PENDING" }
+    });
 
-setUploadStatus("Notarizing hash on Sepolia...");
-const notarizeRes = await fetch(`${VERCEL_API_BASE}/api/notarize`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ sha256: hash, evidenceId: ref.id })
-});
-const notarizeData = await notarizeRes.json();
+    // === Notarize ===
+    setUploadStatus("Notarizing on Sepolia...");
 
-if (!notarizeRes.ok || !notarizeData.ok) {
-  await updateDoc(doc(db, "evidence", ref.id), {
-    blockchain: {
-      status: "FAILED",
-      error: notarizeData?.error || "Unknown error"
+    let notarizeRes;
+    try {
+      notarizeRes = await fetch(`${VERCEL_API_BASE}/api/notarize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sha256: hash, evidenceId: docRef.id })
+      });
+    } catch (netErr) {
+      // ✅ If fetch fails, mark as FAILED (no more stuck PENDING)
+      await updateDoc(doc(db, "evidence", docRef.id), {
+        blockchain: { status: "FAILED", error: "Network error calling notarize API" }
+      });
+      throw new Error("Failed to fetch notarize API (network/CORS/server crash).");
     }
-  });
-  throw new Error(notarizeData?.error || "Blockchain notarization failed");
-}
 
-await updateDoc(doc(db, "evidence", ref.id), {
-  blockchain: {
-    status: "CONFIRMED",
-    txHash: notarizeData.txHash,
-    blockNumber: notarizeData.blockNumber
-  }
-});
-    setUploadStatus("Evidence uploaded and logged ✅");
+    // Parse response safely
+    let notarizeData = null;
+    try {
+      notarizeData = await notarizeRes.json();
+    } catch {
+      const txt = await notarizeRes.text();
+      notarizeData = { ok: false, error: txt || "Invalid JSON response from notarize API" };
+    }
+
+    if (!notarizeRes.ok || !notarizeData.ok) {
+      await updateDoc(doc(db, "evidence", docRef.id), {
+        blockchain: { status: "FAILED", error: notarizeData?.error || "Unknown error" }
+      });
+      throw new Error(notarizeData?.error || "Blockchain notarization failed");
+    }
+
+    await updateDoc(doc(db, "evidence", docRef.id), {
+      blockchain: {
+        status: "CONFIRMED",
+        txHash: notarizeData.txHash,
+        blockNumber: notarizeData.blockNumber
+      }
+    });
+
+    setUploadStatus("Evidence uploaded and notarized ✅");
+
     evidenceTitleEl.value = "";
     evidenceFileEl.value = "";
   } catch (e) {
